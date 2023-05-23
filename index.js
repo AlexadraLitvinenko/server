@@ -1,16 +1,12 @@
 const express = require('express');
 const fs = require('node:fs');
-const winston = require('winston');
+const morgan = require('morgan');
+const winston = require('./logger');
 
 const app = express();             
 const port = 5000;
 
-const logger = winston.createLogger({
-    level: 'info',
-    transports: [
-      new winston.transports.File({filename: 'logs.log'})
-    ],
-  });
+app.use(morgan('combined', { stream: winston.stream }));
 
 async function readLines(input, func, res) {
     var remaining = '';
@@ -41,11 +37,9 @@ async function readLines(input, func, res) {
   function writeLines(data) {
     fs.appendFileSync('index.html', data, (err) => {
         if (err) {
-        logger.error(err);
           return
         }
     });
-    logger.error('Индексный файл успешно обновлен');
   }
 
 app.get('/text', async (req, res) => {
